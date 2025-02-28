@@ -21,11 +21,12 @@ jobs:
       - name: Set up directories and sample data
         run: |
           mkdir -p csv conf
-          # Create a sample CSV file for testing
+          # Create sample CSV
           echo "No.,MACHINE_NO,Lot" > csv/sample.csv
           echo "1,CRST_109,A1816812508300130162" >> csv/sample.csv
           echo "2,CRST_109,A1816812508300130162" >> csv/sample.csv
-          ls -l csv/ conf/
+          # Ensure config files exist
+          ls -l conf/
 
       - name: Run Fluent Bit and Pipe to Python
         run: |
