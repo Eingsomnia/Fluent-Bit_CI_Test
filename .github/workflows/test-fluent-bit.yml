@@ -21,12 +21,19 @@ jobs:
       - name: Set up directories and sample data
         run: |
           mkdir -p csv conf
-          # Create sample CSV
           echo "No.,MACHINE_NO,Lot" > csv/sample.csv
           echo "1,CRST_109,A1816812508300130162" >> csv/sample.csv
           echo "2,CRST_109,A1816812508300130162" >> csv/sample.csv
-          # Ensure config files exist
-          ls -l conf/
+          ls -l csv/ conf/
+
+      - name: Verify Python and Script
+        run: |
+          python --version
+          ls -l read_from_stdin.py || echo "read_from_stdin.py not found"
+
+      - name: Debug Fluent Bit Output
+        run: |
+          docker run --rm -v $(pwd)/csv:/csv -v $(pwd)/conf:/conf fluent/fluent-bit:latest /fluent-bit/bin/fluent-bit -c /conf/fluent-bit.conf
 
       - name: Run Fluent Bit and Pipe to Python
         run: |
