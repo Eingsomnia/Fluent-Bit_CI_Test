@@ -13,32 +13,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
       - name: Set up directories and sample data
         run: |
-          mkdir -p csv conf output
+          mkdir -p csv conf
           # Create a sample CSV file for testing
-          echo "No.,Name,Age" > csv/sample.csv
-          echo "1,Alice,25" >> csv/sample.csv
-          echo "2,Bob,30" >> csv/sample.csv
-          # Ensure config files are in conf/ (assuming they’re in repo)
-          ls -l conf/
+          echo "No.,MACHINE_NO,Lot" > csv/sample.csv
+          echo "1,CRST_109,A1816812508300130162" >> csv/sample.csv
+          echo "2,CRST_109,A1816812508300130162" >> csv/sample.csv
+          ls -l csv/ conf/
 
-      - name: Run Fluent Bit
+      - name: Run Fluent Bit and Pipe to Python
         run: |
-          docker run --rm -v $(pwd)/csv:/csv -v $(pwd)/conf:/conf -v $(pwd)/output:/output fluent/fluent-bit:latest /fluent-bit/bin/fluent-bit -c /conf/fluent-bit.conf
-        continue-on-error: true  # Allow workflow to proceed even if Fluent Bit fails
-
-      - name: Display output
-        run: |
-          if [ -f output/output.json ]; then
-            cat output/output.json
-          else
-            echo "No output file generated yet"
-          fi
-
-      - name: Upload output as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: fluent-bit-output
-          path: output/
-          retention-days: 7
+          docker run --rm -v $(pwd)/csv:/csv -v $(pwd)/conf:/conf fluent/fluent-bit:latest /fluent-bit/bin/fluent-bit -c /conf/fluent-bit.conf | python read_from_stdin.py
